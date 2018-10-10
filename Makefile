@@ -13,7 +13,6 @@ SRCS=$(UNITY_FILES) $(wildcard src/*.c)
 
 # Add additional tests here!
 TESTS  = TestLightScheduler 
-TESTS += TestLightControlSpy
 
 
 
