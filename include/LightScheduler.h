@@ -1,4 +1,4 @@
-#ifdef LIGHT_SCHEDULER_H
+#ifndef LIGHT_SCHEDULER_H
 #define LIGHT_SCHEDULER_H
 
 #include "LightControl.h"
