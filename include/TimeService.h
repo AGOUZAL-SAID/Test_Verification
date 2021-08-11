@@ -1,7 +1,7 @@
 #ifndef TIME_SERVICE_H
 #define TIME_SERVICE_H
 
-enum Day {
+typedef enum {
     NONE=-1,
     MONDAY=1,
     TUESDAY,
@@ -13,19 +13,27 @@ enum Day {
     EVERYDAY=10,
     WEEKDAY,
     WEEKEND
-};
-
-typedef enum Day Day;
+} WeekDay;
 
 typedef struct {
-    Day day;
+    WeekDay dayOfWeek;
     int minuteOfDay;
 } Time;
 
+/* Initialize time service */
 void TimeService_init(void);
+
+/* Finalize time service */
 void TimeService_destroy(void);
+
+/* Modifies the passed struct to reflect the current time */
 void TimeService_getTime(Time *time);
-void TimeService_startPeriodicAlarm(int seconds, void (*callback)(void));
-void TimeService_stopPeriodicAlarm(int seconds);
+
+/* Initialize periodic alarm. The function callback will be called by the time
+   service every seconds seconds. The function returns a handle on the alarm. */
+int  TimeService_startPeriodicAlarm(int seconds, void (*callback)(void));
+
+/* Stops periodic alarm corresponding to the handle */
+void TimeService_stopPeriodicAlarm(int handle);
 
 #endif
