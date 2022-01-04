@@ -2,20 +2,19 @@ CC=cc
 CFLAGS=-g -Wall -std=c99
 
 # We need to include some source files from unity into the build
-UNITY=Unity
-UNITY_FILES=$(UNITY)/src/unity.c $(CMOCKDIR)/src/cmock.c
 CMOCKDIR=CMock
-
+UNITYDIR=CMock/vendor/unity
+UNITY_FILES=$(UNITYDIR)/src/unity.c $(CMOCKDIR)/src/cmock.c
 CMOCK=ruby $(CMOCKDIR)/lib/cmock.rb
 
-# Source files 
+# Source files
 SRCS=$(wildcard src/*.c)
 
 # Directory for mock objects
 MOCKDIR=./mocks
 
 # Modules to mock
-TOMOCK = 
+TOMOCK = TimeService
 
 MOCKS = $(addprefix $(MOCKDIR)/Mock, $(addsuffix .c, $(TOMOCK)))
 SRCS += $(MOCKS)
@@ -37,12 +36,15 @@ RUNNERS=$(addprefix test/,$(addsuffix _Runner.c, $(TESTS)))
 TARGETS=$(addprefix run_, $(TESTS))
 
 # Include directories
-INCL=-Iinclude -I$(UNITY)/src -I$(CMOCKDIR)/src -I$(MOCKDIR)
+INCL=-Iinclude -I$(UNITYDIR)/src -I$(CMOCKDIR)/src -I$(MOCKDIR)
 
 
-.PHONY: all clean run_tests
+.PHONY: all clean run_tests cmock_init
 
-default all: clean mock_objects run_tests
+default all: clean cmock_init mock_objects run_tests
+
+cmock_init: CMock/vendor/unity/README.md
+	cd CMock && git submodule init && git submodule update
 
 mock_objects: $(MOCKS)
 
@@ -53,7 +55,7 @@ mocks/Mock%.c: include/%.h
 	$(CC) $(CFLAGS) $(INCL) $(COVFLAGS) -c $< -o $@
 
 test/%_Runner.c: test/%.c
-	ruby $(UNITY)/auto/generate_test_runner.rb $< $@
+	ruby $(UNITYDIR)/auto/generate_test_runner.rb $< $@
 
 run_%: $(OBJS) test/%.c test/%_Runner.c
 	echo $(OBJS)
