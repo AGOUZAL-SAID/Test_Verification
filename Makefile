@@ -3,10 +3,24 @@ CFLAGS=-g -Wall -std=c99
 
 # We need to include some source files from unity into the build
 UNITY=Unity
-UNITY_FILES=$(UNITY)/src/unity.c
+UNITY_FILES=$(UNITY)/src/unity.c $(CMOCKDIR)/src/cmock.c
+CMOCKDIR=CMock
 
-# Source files and their objects
+CMOCK=ruby $(CMOCKDIR)/lib/cmock.rb
+
+# Source files 
 SRCS=$(wildcard src/*.c)
+
+# Directory for mock objects
+MOCKDIR=./mocks
+
+# Modules to mock
+TOMOCK = 
+
+MOCKS = $(addprefix $(MOCKDIR)/Mock, $(addsuffix .c, $(TOMOCK)))
+SRCS += $(MOCKS)
+
+# Objects
 OBJS=$(SRCS:.c=.o)
 
 
@@ -18,17 +32,22 @@ TESTS 	= TestLightScheduler
 
 
 # Test sources and runners. Don't touch the following lines!
-TEST_SRCS=$(addprefix test/,$(addsuffix(.c, $(TESTS))))
-RUNNERS=$(addprefix test/,$(addsuffix(_Runner.c, $(TESTS))))
+TEST_SRCS=$(addprefix test/,$(addsuffix .c, $(TESTS)))
+RUNNERS=$(addprefix test/,$(addsuffix _Runner.c, $(TESTS)))
 TARGETS=$(addprefix run_, $(TESTS))
 
 # Include directories
-INCL=-Iinclude -I$(UNITY)/src
+INCL=-Iinclude -I$(UNITY)/src -I$(CMOCKDIR)/src -I$(MOCKDIR)
 
 
 .PHONY: all clean run_tests
 
-default all: clean run_tests
+default all: clean mock_objects run_tests
+
+mock_objects: $(MOCKS)
+
+mocks/Mock%.c: include/%.h
+	$(CMOCK) $<
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCL) $(COVFLAGS) -c $< -o $@
@@ -48,6 +67,7 @@ run_tests: $(TARGETS)
 
 clean:
 	rm -f  $(OBJS) $(TARGETS) $(RUNNERS) *~ src/*~ test/*~ include/*~
+	rm -rf mocks
 	rm -f *.gcda *.gcno *.info src/*.gcda src/*.gcno
 	rm -rf coverage
 
