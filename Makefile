@@ -1,33 +1,37 @@
 CC=cc
 CFLAGS=-g -Wall -std=c99
 
-# We need to include some source files from unity into the build
+# We need to include some source files from cmock and unity into the build
 CMOCKDIR=CMock
 UNITYDIR=CMock/vendor/unity
 UNITY_FILES=$(UNITYDIR)/src/unity.c $(CMOCKDIR)/src/cmock.c
+
+# command to execute to create mock objects
 CMOCK=ruby $(CMOCKDIR)/lib/cmock.rb
 
 # Source files
 SRCS=$(wildcard src/*.c)
 
-# Directory for mock objects
-MOCKDIR=./mocks
 
+# =============================================================
+# Add your tests here!
+# =============================================================
+TESTS 	= TestLightScheduler
+#TESTS		+= TestLightControlSpy
+
+
+# =============================================================
 # Modules to mock
+# =============================================================
 TOMOCK = TimeService
 
+
+MOCKDIR=./mocks
 MOCKS = $(addprefix $(MOCKDIR)/Mock, $(addsuffix .c, $(TOMOCK)))
 SRCS += $(MOCKS)
 
 # Objects
 OBJS=$(SRCS:.c=.o)
-
-
-# Add your tests here!
-TESTS 	= TestLightScheduler
-#TESTS		+= TestLightControlSpy
-#TESTS		+= TestFakeTimeService
-
 
 
 # Test sources and runners. Don't touch the following lines!
