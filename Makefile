@@ -7,7 +7,7 @@ UNITYDIR=CMock/vendor/unity
 UNITY_FILES=$(UNITYDIR)/src/unity.c $(CMOCKDIR)/src/cmock.c
 
 # command to execute to create mock objects
-CMOCK=ruby $(CMOCKDIR)/lib/cmock.rb
+CMOCK=ruby $(CMOCKDIR)/lib/cmock.rb -ocmock_config.yml
 
 # Source files
 SRCS=$(wildcard src/*.c)
@@ -23,7 +23,7 @@ TESTS 	= TestLightScheduler
 # =============================================================
 # Modules to mock
 # =============================================================
-TOMOCK = TimeService
+TOMOCK =
 
 
 MOCKDIR=./mocks
@@ -45,10 +45,7 @@ INCL=-Iinclude -I$(UNITYDIR)/src -I$(CMOCKDIR)/src -I$(MOCKDIR)
 
 .PHONY: all clean run_tests cmock_init
 
-default all: clean cmock_init mock_objects run_tests
-
-cmock_init: CMock/vendor/unity/README.md
-	cd CMock && git submodule init && git submodule update
+default all: clean mock_objects run_tests
 
 mock_objects: $(MOCKS)
 
