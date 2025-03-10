@@ -16,14 +16,14 @@ SRCS=$(wildcard src/*.c)
 # =============================================================
 # Add your tests here!
 # =============================================================
-TESTS += TestLightControlSpy
+TESTS += TestLightScheduler
 #TESTS		+= TestLightControlSpy
 
 
 # =============================================================
 # Modules to mock
 # =============================================================
-TOMOCK =
+TOMOCK = TimeService
 
 
 MOCKDIR=./mocks
