@@ -26,5 +26,6 @@ void LightControl_on(int id){
 }
 void LightControl_off(int id){
     state_test = LIGHT_OFF;
+    id_test = id;
 }
 
