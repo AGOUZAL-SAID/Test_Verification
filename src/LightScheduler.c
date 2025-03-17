@@ -5,7 +5,6 @@
 #include <stdbool.h>
 
 
-extern Time currentTime;
 static ScheduledEvent events[256];
 static int eventCount = 0;
 
@@ -14,11 +13,9 @@ void LightScheduler_init(void) {
     for(int i = 0; i < 256; i++) {
         events[i].active = false;
     }
-    TimeService_startPeriodicAlarm(60, LightScheduler_wakeup);
 }
 
 void LightScheduler_destroy(void) {
-    TimeService_stopPeriodicAlarm(0);
 }
 
 int LightScheduler_schedule(int lightId, WeekDay day, int minute, int action) {
@@ -48,11 +45,12 @@ bool matches_day(WeekDay scheduled, WeekDay current) {
 }
 
 void LightScheduler_wakeup(void) {
-    TimeService_getTime(&currentTime);
+    Time timeNow;
+    TimeService_getTime(&timeNow);
     for(int i = 0; i < eventCount; i++) {
         ScheduledEvent *e = &events[i];
-        if(e->active && matches_day(e->day, currentTime.dayOfWeek)) {
-            if(e->minute - currentTime.minuteOfDay == 0) {
+        if(e->active && matches_day(e->day, timeNow.dayOfWeek)) {
+            if(e->minute - timeNow.minuteOfDay == 0) {
                 (e->action == TURN_ON) ? LightControl_on(e->lightId) : LightControl_off(e->lightId);
             }
         }
