@@ -11,6 +11,7 @@ bool matches_day(WeekDay scheduled, WeekDay current) ;
 void LightScheduler_wakeup(void) ;
 int turn_on_led_now(int id);
 int turn_off_led_now(int id);
+bool did_u_wake_me_up_one_minute_before(int id);
 typedef enum { TURN_OFF, TURN_ON } Action;
 
 typedef struct {

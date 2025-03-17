@@ -12,5 +12,6 @@ enum {
 
 int LightControlSpy_getLastLightId(void); 
 int LightControlSpy_getLastState(void); 
+int did_you_pass_by_me(void);
 
 #endif

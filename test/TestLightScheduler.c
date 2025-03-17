@@ -246,3 +246,29 @@ void test_schedule_light_on_multiple_event_oneLED(void){
     TEST_ASSERT_EQUAL(LIGHT_OFF,LightControlSpy_getLastState());
     
 }
+
+void test_shcheduler_passed_by_driver(){
+    LightScheduler_init();
+    LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
+    turn_off_led_now(1);
+    set_time(MONDAY, 8*60);
+    TimeService_getTime_ExpectAnyArgs();
+    TimeService_getTime_ReturnMemThruPtr_time(&currentTime,sizeof(currentTime));
+    LightScheduler_wakeup();
+    TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
+    TEST_ASSERT_EQUAL(LIGHT_ON,LightControlSpy_getLastState());
+    TEST_ASSERT_TRUE(did_you_pass_by_me());
+}
+
+void test_scheduler_weekup_one_minute_before(){
+    LightScheduler_init();
+    int id = LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
+    turn_off_led_now(1);
+    set_time(MONDAY, 8*60);
+    TimeService_getTime_ExpectAnyArgs();
+    TimeService_getTime_ReturnMemThruPtr_time(&currentTime,sizeof(currentTime));
+    LightScheduler_wakeup();
+    TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
+    TEST_ASSERT_EQUAL(LIGHT_ON,LightControlSpy_getLastState());
+    TEST_ASSERT_TRUE(did_u_wake_me_up_one_minute_before(id));
+}

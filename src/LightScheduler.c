@@ -66,3 +66,7 @@ int turn_off_led_now(int id){
     if (id < 0 || id > 255 ) return -1;
     LightControl_off(id);
     return 0;}
+
+bool did_u_wake_me_up_one_minute_before(int id){
+    return events[id].one_minute_befores;
+}
