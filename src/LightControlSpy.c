@@ -26,8 +26,8 @@ void LightControl_destroy(){
 void LightControl_on(int id){
     id_test = id;
     state_test = LIGHT_ON;
-    passed_by_me = 1;
 }
+
 
 void LightControl_off(int id){
     state_test = LIGHT_OFF;

@@ -70,3 +70,4 @@ int turn_off_led_now(int id){
 bool did_u_wake_me_up_one_minute_before(int id){
     return events[id].one_minute_befores;
 }
+
