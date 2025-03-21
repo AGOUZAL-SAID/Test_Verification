@@ -24,7 +24,7 @@ void LightScheduler_destroy(void) {
 int LightScheduler_schedule(int lightId, WeekDay day, int minute, int action) {
     // Validate light ID range and check event capacity
     if(lightId < 0 || lightId > 255 || eventCount >= 256) return -1;
-    
+    if(minute<0 || minute>23*60+59)return -1;
     // Create new event and add to array
     events[eventCount] = (ScheduledEvent){
         .id = eventCount,          // Auto-increment ID based on position

@@ -2,6 +2,7 @@
 #include "LightScheduler.h"
 #include "unity.h"
 #include <stdbool.h>
+#include <cmock.h>
 
 // Mocks
 static Time currentTime; // Holds the mocked current time for testing
@@ -313,6 +314,7 @@ void test_scheduler_turn_on_led_only_at_the_specifique_time(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_OFF,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -344,6 +346,7 @@ void test_scheduler_turn_on_led_only_at_the_weekend(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_OFF,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -382,6 +385,7 @@ void test_scheduler_turn_on_led_only_at_weekday(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_OFF,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -416,6 +420,7 @@ void test_scheduler_turn_off_led_only_at_the_specifique_time(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_ON,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -445,6 +450,7 @@ void test_scheduler_turn_off_led_only_at_the_weekend(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL_MESSAGE(LIGHT_ON,LightControlSpy_getLastState(),"dans la boucle");
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -483,6 +489,7 @@ void test_scheduler_turn_off_led_only_at_weekday(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(1, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_ON,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -516,6 +523,7 @@ void test_scheduler_can_programme_on_any_time_possible(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(200, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_ON,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal();
                 }
             }
     }
@@ -539,7 +547,26 @@ void test_scheduler_can_programme_off_any_time_possible(){
                     LightScheduler_wakeup();
                     TEST_ASSERT_EQUAL(200, LightControlSpy_getLastLightId());
                     TEST_ASSERT_EQUAL(LIGHT_OFF,LightControlSpy_getLastState());
+                    CMock_Guts_MemFreeFinal(); 
                 }
             }
     }
+}
+
+// Test if the time of the event is a valid time or no
+void test_the_time_of_the_scheduler_events_is_invalid(){
+    LightScheduler_init();
+    int i = LightScheduler_schedule(20, MONDAY, 24*60, TURN_ON);
+    set_time(MONDAY, 8*60);
+    TimeService_getTime_ExpectAnyArgs();
+    TimeService_getTime_ReturnMemThruPtr_time(&currentTime,sizeof(currentTime));
+    LightScheduler_wakeup();
+    TEST_ASSERT_EQUAL(-1, i);
+
+    i = LightScheduler_schedule(20, MONDAY, -5*60, TURN_ON);
+    set_time(MONDAY, 8*60);
+    TimeService_getTime_ExpectAnyArgs();
+    TimeService_getTime_ReturnMemThruPtr_time(&currentTime,sizeof(currentTime));
+    LightScheduler_wakeup();
+    TEST_ASSERT_EQUAL(-1, i);
 }
