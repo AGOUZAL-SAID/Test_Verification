@@ -9,6 +9,7 @@ static Time currentTime; // Holds the mocked current time for testing
 
 // Test setup and teardown
 void setUp(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();    // Initialize the LightScheduler before each test
     LightControl_init();      // Initialize the LightControl module
     currentTime = (Time){NONE, -1}; // Reset mocked time to default invalid values
@@ -16,6 +17,7 @@ void setUp(void) {
 
 void tearDown(void) {
     LightScheduler_destroy(); // Clean up LightScheduler after each test
+    CMock_Guts_MemFreeFinal(); 
 }
 
 // Helper function to set mock time
@@ -27,6 +29,7 @@ static void set_time(WeekDay day, int minute) {
 // Test cases
 // Tests scheduling a light to turn ON on a specific day and time
 void test_schedule_light_on_specific_day_time(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
     turn_off_led_now(1);
@@ -40,6 +43,7 @@ void test_schedule_light_on_specific_day_time(void) {
 
 // Tests scheduling a light to turn OFF on a specific day and time
 void test_schedule_light_off_specific_day_time(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(2, FRIDAY, 22*60, TURN_OFF);
     turn_on_led_now(2);
@@ -53,6 +57,7 @@ void test_schedule_light_off_specific_day_time(void) {
 
 // Tests daily schedule (EVERYDAY) functionality
 void test_everyday_schedule(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(3, EVERYDAY, 12*60, TURN_ON);
     turn_off_led_now(3);
@@ -73,6 +78,7 @@ void test_everyday_schedule(void) {
 
 // Tests weekday schedule (Monday-Friday) functionality
 void test_weekday_schedule(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(3, WEEKDAY, 12*60, TURN_ON);
     set_time(SUNDAY, 12*60);
@@ -92,6 +98,7 @@ void test_weekday_schedule(void) {
 
 // Tests weekend schedule (Saturday-Sunday) functionality
 void test_weekend_schedule(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(4, WEEKEND, 9*60, TURN_ON);
     turn_off_led_now(4);
@@ -112,6 +119,7 @@ void test_weekend_schedule(void) {
 
 // Tests removal of scheduled events
 void test_remove_scheduled_event(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     int id = LightScheduler_schedule(6, TUESDAY, 7*60, TURN_ON);
     LightScheduler_remove(id);
@@ -125,6 +133,7 @@ void test_remove_scheduled_event(void) {
 
 // Tests maximum number of scheduled events
 void test_max_events(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     for(int i = 0; i < 256; i++) {
         TEST_ASSERT_NOT_EQUAL(-1, LightScheduler_schedule(i, MONDAY, 0, TURN_ON));
@@ -134,6 +143,7 @@ void test_max_events(void) {
 
 // Tests daily schedule for turning OFF lights
 void test_everyday_schedule_off(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(3, EVERYDAY, 12*60, TURN_OFF);
     turn_on_led_now(3);
@@ -147,6 +157,7 @@ void test_everyday_schedule_off(void) {
 
 // Tests weekday schedule for turning OFF lights
 void test_weekday_schedule_off(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(3, WEEKDAY, 12*60, TURN_OFF);
     set_time(MONDAY, 12*60);
@@ -159,6 +170,7 @@ void test_weekday_schedule_off(void) {
 
 // Tests weekend schedule for turning OFF lights
 void test_weekend_schedule_off(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(4, WEEKEND, 9*60, TURN_OFF);
     turn_on_led_now(4);
@@ -209,6 +221,7 @@ void test_off_invalid_led(void){
 
 // Tests scheduling with invalid LED ID for ON operation
 void test_schedule_light_on_specific_day_time_invalidLED(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     int i = LightScheduler_schedule(300, MONDAY, 8*60, TURN_ON);
     set_time(MONDAY, 8*60);
@@ -220,6 +233,7 @@ void test_schedule_light_on_specific_day_time_invalidLED(void) {
 
 // Tests scheduling with invalid LED ID for OFF operation
 void test_schedule_light_off_specific_day_time_invalidLED(void) {
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     int i = LightScheduler_schedule(300, MONDAY, 8*60, TURN_OFF);
     set_time(MONDAY, 8*60);
@@ -231,6 +245,7 @@ void test_schedule_light_off_specific_day_time_invalidLED(void) {
 
 // Tests multiple scheduled events on a single LED
 void test_schedule_light_on_multiple_event_oneLED(void){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(55, MONDAY, 8*60, TURN_ON);
     LightScheduler_schedule(55, FRIDAY, 5*60, TURN_ON);
@@ -267,6 +282,7 @@ void test_schedule_light_on_multiple_event_oneLED(void){
 
 // Tests integration with external driver system
 void test_shcheduler_passed_by_driver(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
     turn_off_led_now(1);
@@ -281,6 +297,7 @@ void test_shcheduler_passed_by_driver(){
 
 // Tests wakeup functionality one minute before scheduled time
 void test_scheduler_weekup_one_minute_before(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     int id = LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
     turn_off_led_now(1);
@@ -299,6 +316,7 @@ void test_scheduler_weekup_one_minute_before(){
 // It iterates through all days/times except the scheduled time to check the LED remains off,
 // then checks the scheduled time turns it on.
 void test_scheduler_turn_on_led_only_at_the_specifique_time(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, MONDAY, 8*60, TURN_ON);
     turn_off_led_now(1);
@@ -331,6 +349,7 @@ void test_scheduler_turn_on_led_only_at_the_specifique_time(){
 // at 4:30. Tests all other times/days to confirm the LED stays off,
 // then validates both weekend days at the scheduled time.
 void test_scheduler_turn_on_led_only_at_the_weekend(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, WEEKEND, 4*60+30, TURN_ON);
     turn_off_led_now(1);
@@ -370,6 +389,7 @@ void test_scheduler_turn_on_led_only_at_the_weekend(){
 // Loops through all non-weekday times to check the LED remains off,
 // then verifies each weekday at the scheduled time.
 void test_scheduler_turn_on_led_only_at_weekday(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, WEEKDAY, 18*60+45, TURN_ON);
     turn_off_led_now(1);
@@ -405,6 +425,7 @@ void test_scheduler_turn_on_led_only_at_weekday(){
 // only at the specified time (Monday 8:00). Checks all other times/days 
 // to ensure the LED remains on, then tests the scheduled turn-off time.
 void test_scheduler_turn_off_led_only_at_the_specifique_time(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, MONDAY, 8*60, TURN_OFF);
     turn_on_led_now(1);
@@ -435,6 +456,7 @@ void test_scheduler_turn_off_led_only_at_the_specifique_time(){
 // Test to ensure the LED turns off only during weekends (Saturday/Sunday) at 4:30.
 // Validates all other times/days keep the LED on, then checks both weekend days.
 void test_scheduler_turn_off_led_only_at_the_weekend(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, WEEKEND, 4*60+30, TURN_OFF);
     turn_on_led_now(1);
@@ -474,6 +496,7 @@ void test_scheduler_turn_off_led_only_at_the_weekend(){
 // Tests non-weekday times to ensure the LED stays on,
 // then checks each weekday at the scheduled time.
 void test_scheduler_turn_off_led_only_at_weekday(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     LightScheduler_schedule(1, WEEKDAY, 18*60+45, TURN_OFF);
     turn_on_led_now(1);
@@ -514,6 +537,7 @@ void test_scheduler_can_programme_on_any_time_possible(){
         WeekDay day = week[i];
             for(int hour =0 ; hour<24;hour++){
                 for(int minute = 0 ; minute < 60 ; minute++){
+                    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
                     LightScheduler_init();
                     LightScheduler_schedule(200, day, hour*60+minute, TURN_ON);
                     turn_off_led_now(200);
@@ -538,6 +562,7 @@ void test_scheduler_can_programme_off_any_time_possible(){
         WeekDay day = week[i];
             for(int hour =0 ; hour<24;hour++){
                 for(int minute = 0 ; minute < 60 ; minute++){
+                    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
                     LightScheduler_init();
                     LightScheduler_schedule(200, day, hour*60+minute, TURN_OFF);
                     turn_on_led_now(200);
@@ -555,6 +580,7 @@ void test_scheduler_can_programme_off_any_time_possible(){
 
 // Test if the time of the event is a valid time or no
 void test_the_time_of_the_scheduler_events_is_invalid(){
+    TimeService_startPeriodicAlarm_ExpectAndReturn(60, LightScheduler_wakeup, 0);
     LightScheduler_init();
     int i = LightScheduler_schedule(20, MONDAY, 24*60, TURN_ON);
     set_time(MONDAY, 8*60);

@@ -1,0 +1,95 @@
+        -:    0:Source:src/LightScheduler.c
+        -:    0:Graph:src/LightScheduler.gcno
+        -:    0:Data:src/LightScheduler.gcda
+        -:    0:Runs:1
+        -:    1:#include "LightScheduler.h"
+        -:    2:#include "LightControl.h"
+        -:    3:#include "TimeService.h"
+        -:    4:#include <stdlib.h>
+        -:    5:#include <stdbool.h>
+        -:    6:
+        -:    7:// Global variables for storing scheduled events
+        -:    8:static ScheduledEvent events[256];  // Stores up to 256 scheduled light events
+        -:    9:static int eventCount = 0;          // Tracks number of active scheduled events
+        -:   10:
+        -:   11:// Initialize light scheduler - reset event count and mark all events inactive
+    20210:   12:void LightScheduler_init(void) {
+    20210:   13:    LightControl_init();
+    20210:   14:    eventCount = 0;
+  5193970:   15:    for(int i = 0; i < 256; i++) {
+  5173760:   16:        events[i].active = false;  // Initialize all event slots as inactive
+        -:   17:    }
+    20210:   18:    TimeService_startPeriodicAlarm(60,LightScheduler_wakeup);
+    20210:   19:}
+        -:   20:
+        -:   21:// Cleanup function (currently empty)
+       28:   22:void LightScheduler_destroy(void) {
+       28:   23:}
+        -:   24:
+        -:   25:// Schedule a new light event with validation
+    20442:   26:int LightScheduler_schedule(int lightId, WeekDay day, int minute, int action) {
+        -:   27:    // Validate light ID range and check event capacity
+    20442:   28:    if(lightId < 0 || lightId > 255 || eventCount >= 256) return -1;
+    20439:   29:    if(minute<0 || minute>23*60+59)return -1;
+        -:   30:    // Create new event and add to array
+    20437:   31:    events[eventCount] = (ScheduledEvent){
+        -:   32:        .id = eventCount,          // Auto-increment ID based on position
+        -:   33:        .lightId = lightId,        // Target light ID (0-255)
+        -:   34:        .day = day,                // Scheduled day/week pattern
+        -:   35:        .minute = minute,          // Scheduled time in minutes
+        -:   36:        .action = action,          // TURN_ON (1) or TURN_OFF (0)
+        -:   37:        .active = true,            // Mark event as active
+        -:   38:        .one_minute_befores = true // Currently unused legacy flag
+        -:   39:    };
+    20437:   40:    return eventCount++;  // Return event ID and increment counter
+        -:   41:}
+        -:   42:
+        -:   43:// Remove/deactivate an event by ID
+        1:   44:void LightScheduler_remove(int id) {
+        1:   45:    if(id >= 0 && id < 256) events[id].active = false;  // Soft delete by deactivation
+        1:   46:}
+        -:   47:
+        -:   48:// Day matching logic for different schedule types
+    80670:   49:bool matches_day(WeekDay scheduled, WeekDay current) {
+    80670:   50:    if(scheduled == EVERYDAY) return true;  // Match any day
+    80667:   51:    if(scheduled == WEEKDAY) return current >= MONDAY && current <= FRIDAY;  // Weekdays
+    60504:   52:    if(scheduled == WEEKEND) return current == SATURDAY || current == SUNDAY;  // Weekends
+    40340:   53:    return scheduled == current;  // Direct day match
+        -:   54:}
+        -:   55:
+        -:   56:// Main scheduler loop - checks and triggers events
+    80663:   57:void LightScheduler_wakeup(void) {
+        -:   58:    Time timeNow;
+    80663:   59:    TimeService_getTime(&timeNow);  // Get current time
+        -:   60:    
+        -:   61:    // Check all scheduled events
+   161334:   62:    for(int i = 0; i < eventCount; i++) {
+    80671:   63:        ScheduledEvent *e = &events[i];
+        -:   64:        // Check if event is active and day matches
+    80671:   65:        if(e->active && matches_day(e->day, timeNow.dayOfWeek)) {
+        -:   66:            // Execute action if time matches exactly
+    43217:   67:            if(e->minute - timeNow.minuteOfDay == 0) {
+    10099:   68:                (e->action == TURN_ON) ? LightControl_on(e->lightId) 
+    20193:   69:                                       : LightControl_off(e->lightId);
+        -:   70:            }
+        -:   71:        }
+        -:   72:    }
+    80663:   73:}
+        -:   74:
+        -:   75:// Immediate light control with validation
+    10097:   76:int turn_on_led_now(int id){
+    10097:   77:    if (id < 0 || id > 255 ) return -1;  // Validate ID
+    10095:   78:    LightControl_on(id);                 // Direct control
+    10095:   79:    return 0;
+        -:   80:}
+        -:   81:
+    10102:   82:int turn_off_led_now(int id){
+    10102:   83:    if (id < 0 || id > 255 ) return -1;  // Validate ID
+    10100:   84:    LightControl_off(id);                // Direct control
+    10100:   85:    return 0;
+        -:   86:}
+        -:   87:
+        -:   88:// Legacy flag check (currently always returns true)
+        1:   89:bool did_u_wake_me_up_one_minute_before(int id){
+        1:   90:    return events[id].one_minute_befores;  // Return preset flag value
+        -:   91:}

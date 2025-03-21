@@ -1,0 +1,54 @@
+        -:    0:Source:src/LightControlSpy.c
+        -:    0:Graph:src/LightControlSpy.gcno
+        -:    0:Data:src/LightControlSpy.gcda
+        -:    0:Runs:1
+        -:    1:#include "LightControlSpy.h"
+        -:    2:#include <stdio.h>
+        -:    3:
+        -:    4:// Spy variables for tracking light control states
+        -:    5:static int id_test = -1;        // Stores last operated light ID (LIGHT_ID_UNKNOWN = -1)
+        -:    6:static int state_test = -1;     // Stores last light operation state (LIGHT_STATE_UNKNOWN = -1)
+        -:    7:static int passed_by_me = 0;    // Flag for driver integration testing verification
+        -:    8:
+        -:    9:// Get last operated light ID from spy
+    80661:   10:int LightControlSpy_getLastLightId(){
+    80661:   11:    return id_test;
+        -:   12:} 
+        -:   13:
+        -:   14:// Get last light operation state from spy
+    80661:   15:int LightControlSpy_getLastState(){
+    80661:   16:    return state_test;
+        -:   17:}
+        -:   18:
+        -:   19:// Reset spy tracking for new test
+    20238:   20:void LightControl_init(){
+    20238:   21:    id_test    = LIGHT_ID_UNKNOWN;      // Reset to default unknown ID
+    20238:   22:    state_test = LIGHT_STATE_UNKNOWN;   // Reset to default unknown state
+    20238:   23:    passed_by_me = 1;                   // Set verification flag for initialization
+    20238:   24:}
+        -:   25:
+        -:   26:// Cleanup spy and print destruction message
+    #####:   27:void LightControl_destroy(){
+    #####:   28:    printf("light control destroyed");
+    #####:   29:    state_test = LIGHT_STATE_UNKNOWN;   // Reset state tracking
+    #####:   30:    id_test    = LIGHT_ID_UNKNOWN;      // Reset ID tracking
+    #####:   31:    passed_by_me = 1;                   // Set verification flag for destruction
+    #####:   32:}
+        -:   33:
+        -:   34:// Spy implementation of light ON operation
+    20194:   35:void LightControl_on(int id){
+    20194:   36:    id_test = id;              // Record light ID
+    20194:   37:    state_test = LIGHT_ON;     // Record ON operation
+    20194:   38:}
+        -:   39:
+        -:   40:// Spy implementation of light OFF operation 
+    20194:   41:void LightControl_off(int id){
+    20194:   42:    state_test = LIGHT_OFF;    // Record OFF operation
+    20194:   43:    id_test = id;              // Record light ID
+    20194:   44:    passed_by_me = 1;          // Set verification flag for driver integration
+    20194:   45:}
+        -:   46:
+        -:   47:// Check if control path was executed (for driver integration tests)
+        1:   48:int did_you_pass_by_me(){
+        1:   49:    return passed_by_me==1;    // Return true if any control operation occurred
+        -:   50:}

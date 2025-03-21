@@ -10,14 +10,17 @@ static int eventCount = 0;          // Tracks number of active scheduled events
 
 // Initialize light scheduler - reset event count and mark all events inactive
 void LightScheduler_init(void) {
+    LightControl_init();
     eventCount = 0;
     for(int i = 0; i < 256; i++) {
         events[i].active = false;  // Initialize all event slots as inactive
     }
+    TimeService_startPeriodicAlarm(60,LightScheduler_wakeup);
 }
 
 // Cleanup function (currently empty)
 void LightScheduler_destroy(void) {
+    LightControl_destroy();
 }
 
 // Schedule a new light event with validation
